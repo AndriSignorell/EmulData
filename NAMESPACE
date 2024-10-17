@@ -1,1 +1,7 @@
-exportPattern("^[[:alpha:]]+")
+exportPattern("schnee", "alzheimer", "miete",
+              "RndPairs", "RndWord")
+
+
+importFrom("stats", "quantile", "relevel", "rnorm", "rpois")
+importFrom("DescTools", "CutQ", "SetNames", "Labels<-", "Label<-","RoundTo", 
+           "StrCap")

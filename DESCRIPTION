@@ -1,11 +1,18 @@
 Package: EmulData
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
+Title: Emulate Date for Simulation Purposes
+Version: 0.1.1
+Authors@R: c(person("Andri", "Signorell", email = "andri@signorell.net", role = c("aut", "cre")))
+Maintainer: Andri Signorell <andri@signorell.net>
+Description: For exercises or tests we often need some toy data.
+    EmulData contains several functions to create such data.
+Depends: base, stats, R (>= 4.0.0), DescTools
+Imports: readxl
+License: GPL (>= 2)
+LazyData: yes
+URL: https://andrisignorell.github.io/EmulData/,
+            https://github.com/AndriSignorell/EmulData/
+BugReports: https://github.com/AndriSignorell/EmulData/issues
+RoxygenNote: 7.3.2
+Roxygen: list(markdown = TRUE)
+Encoding:UTF-8
