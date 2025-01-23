@@ -379,6 +379,29 @@ lohn <- function() {
 # lohn()
 
 
+# Aeschen
+aeschen <- function(mu =c(1, 0.8), s=c(0.19, 0.22)){
+  
+  # get base dataset
+  d.set <- TwoSamp(n=c(101, 123), colnames=c("gewicht", "jahr"),
+                   glevels=c("2023","2024"),
+                   DIST=c(function(n) round(rnorm(n, mean=mu[1], sd=s[1]), 3),
+                          function(n) round(rnorm(n, mean=mu[2], sd=s[2]), 3)))[, c(2,1)]
+
+
+  Label(d.set) <- "Fischer im Bodensee äusserten den Verdacht, dass das Gewicht der Aeschen 
+      im 2024 deutlich kleiner sei, als im vorherigen Jahr (2023). Dieses war speziell
+      warm gewesen und man vermutete, dass vor allem ältere (und schwerere) Fische besonders unter 
+      dem in wärmerem Wasser verringerten Sauerstoffgehalt gelitten hätten und allenfalls vorzeitig 
+      eingegangen sein könnten.<br>
+      Der Datensatz&nbsp;&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;&nbsp;enthält
+      für je eine Stichprobe aus dem Jahr 2023 und eine aus dem Jahr 2024
+      das Gewicht der Fische."
+
+  return(d.set)
+  
+}
+
 
 # Lineare Regression - Bluthochdruck 
 
@@ -415,6 +438,445 @@ blood <- function() {
   # v <- "A"
   
 }  
+
+# lineare Regression
+
+dose <- function(){
+  
+  d.set <- data.frame(proben_id=sample(1000:9999, n <- 507),
+                      wartezeit = RoundTo(abs(rnorm(n, 12, 4))), 
+                      lage= relevel(factor(sample(c("aufrecht","kopfüber"), n, r=T,
+                                                  prob = c(0.5,.5))), ref = "aufrecht"),
+                      reinigung= relevel(factor(sample(c("ja","nein"), n, r=T,
+                                                       prob = c(0.5,.5))), ref = "ja"),
+                      dosis = 1)
+  
+  d.set$dosis <- abs(round(10 + 4*d.set$wartezeit + (d.set$lage=="aufrecht")*500 +
+                             + (d.set$reinigung == "ja") * 0.8
+                           + rnorm(nrow(d.set), mean=0, sd=500), -1))/2000
+  Labels(d.set) <- c("ID der Probe","Wartezeit in [s] zwischen 2 Inhalationen",
+                     "Ausrichtung der Sprühdose",
+                     "Reinigungsstoss vor der Benutzung", "Abgegebene Dosis in [mg/l]")
+  
+  Label(d.set) <- 'Eine Sprühdose (sog. Inhalator) mit dem Wirkstoff "Fenoterol", 
+                   ein Medikament für Asthmatiker, sollte bei Betätigung des Dosierventils
+                   möglichst gleichmässige Dosen abgeben. 
+                   Die Stellung der Dose und der zeitliche Abstand zwischen zwei Inhalationen 
+                   dürfen aus Sicherheitsgründen keine Rolle spielen. In einer Kontrolle 
+                   wurde eine Stichprobe solcher Inhalatoren von einem Analyseinstitut daraufhin 
+                   geprüft, ob die abgegebene Dosis diesen Anforderungen entsprach.'
+  
+  return(d.set)
+
+}
+
+
+
+schulnote <- function(){
+  
+    d.dat <- within(
+      data.frame(
+        bildschirmzeit      = round(runif(n, min = 2, max = 8), 2),
+        schlafdauer         = round(runif(n, min = 5, max = 9), 2),
+        freizeitaktivitäten = ordered(sample(1:3, size = n, replace = TRUE),
+                                      labels=c("selten", "gelegentlich", "häufig"))
+      ),
+      note <- Winsorize(
+        round(2 + -0.3*bildschirmzeit + 0.4*schlafdauer + 
+                0.2* N(freizeitaktivitäten) + rnorm(n, mean = 0, sd = 0.5), 
+              2), val = c(1,6))
+    )
+    
+    Labels(d.dat) <- c("Bildschirmzeit [Stunden pro Tag]",
+                       "Schlafdauer [Stunden pro Nacht]",
+                       "Häufigkeit von Freizeitaktivitäten","Schulische Leistung")
+    
+    
+    Label(d.dat) <- "
+    Ein Sozialwissenschaftler möchte untersuchen, wie verschiedene Faktoren die 
+    schulischen Leistungen von Jugendlichen beeinflussen.
+    Als Zielvariable Y dienen die schulischen Leistungen, 
+    gemessen als Durchschnittsnote auf einer Skala von 1 (sehr schwach) bis 6 (sehr gut).
+    Erklärende Variablen sind:<br><br>&vartab&<br><br>
+      
+    Es wurde eine Stichprobe von &n& Jugendlichen untersucht
+    (Datensatz&nbsp;&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;&nbsp;). 
+    "
+    
+    # Führen Sie eine multiple lineare Regression durch, um den Einfluss dieser Variablen 
+    # auf die schulischen Leistungen zu analysieren.
+    
+    return(d.dat)
+
+}
+
+
+
+kredit <- function(n){
+  
+  d.dat <- within(
+    data.frame(
+      finanzwissen   = round(runif(n, min = 1, max = 10), 0), 
+      einkommen      = round(runif(n, min = 40, max = 150), 0),  
+      beschäftigung  = factor(sample(c("teilzeit", "vollzeit"), 
+                                     size = n, replace = TRUE)) 
+    ),
+    kredit <- 
+      round(10 + 5 * finanzwissen + 0.8 * einkommen + 
+              15 * N(beschäftigung) + rnorm(n, mean = 0, sd = 5), 
+            0)
+  )
+  
+  Labels(d.dat) <- c("Finanzwissen [numerisch, auf einer Skala von 1 bis 10]",
+                     "Jahreseinkommen [in Tausend CHF]",
+                     "Beschäftigungsstatus",
+                     "Kredithöhe")
+
+  Label(d.dat) <- gettextf("
+  Eine Bank möchte untersuchen, welche Faktoren die Höhe eines gewährten Kredits 
+  beeinflussen. Dazu wurden Daten von %s Kunden erfasst. 
+  Die Zielvariable y ist die Höhe des gewährten Kredits (in Tausend CHF). <br>
+  Folgende erklärende Variablen wurden im Datensatz&nbsp;&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;&nbsp;
+  erfasst: <br><br> &vartab&", n)
+  
+  # Führen Sie eine multiple lineare Regression durch, um den Einfluss dieser Variablen 
+  # auf die schulischen Leistungen zu analysieren.
+  
+  return(d.dat)
+  
+}
+
+
+
+
+# Retouren 
+retouren <- function(n=1248, p=0.016, name_x){
+  
+  hersteller <- function(n, p, name_x){
+    
+    data.frame(
+      garantiefall = sample(c("nein", "ja"), size = n, replace = TRUE, 
+                     prob = c(1-p, p)),
+      hersteller = name_x,
+      produkt    = sample(c("TV", "DVD-Player", "Beamer", "HiFi"), 
+                            size = n, replace = TRUE)
+      
+    )
+  }
+  
+  
+  d.ctr <- data.frame(name_x = c("LG", "Samsung", "Sony","Panasonic"),
+                      p = c(0.014, 0.015, 0.018, 0.02)*4,
+                      n = round(c(.18, .33, .39, .10)*n))
+  
+
+  d.dat <- do.call(rbind, lapply(seq(nrow(d.ctr)), 
+                   function(i) with(d.ctr[i, ], 
+                                    hersteller(n, p, name_x)))  )
+
+  d.dat$verkaufsnr <- round(runif(n=n)*1000+1000)
+  
+  Label(d.dat) <- "
+    Ein Onlineanbieter elektronischer Geräte zählt die Garantiefälle einer Marke innerhalb 
+    einer bestimmten Kategorie (Bsp. «TV»), die im After Sales abgewickelt werden müssen.
+    So soll die Wahrscheinlichkeit für einen Garantiedefekt während der gesetzlichen 
+    Garantiezeit transparent gemacht werden und auch der Vergleich zwischen  
+    unterschiedlichen Herstellern ermöglicht werden. Ein Hersteller, der eventuell 
+    mehr auf eine nachhaltige Bauweise setzt, ist so leichter zu erkennen.
+    
+    Es liegen die Verkaufsdaten zweier Jahre vor: 
+    &nbsp;&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;&nbsp;. 
+    "
+
+  return(Sample(d.dat[, c(4,1:3)]))
+  
+}
+
+
+
+birthweight <- function() {
+
+  d.set <- .PackageData("birthweight.xlsx")
+
+  Labels(d.set) <- c("Personen-ID",
+                     "Familieneinkommen [1'000 $]",
+                     "Geburtsgewicht [kg]",
+                     "Schuljahre Vater [Jahre]",
+                     "Schuljahre Mutter [Jahre]",
+                     "Geschlecht des Kindes (0=weiblich, 1=männlich)",
+                     "Hautfarbe weiss (0=nein, 1=ja)",
+                     "Anzahl während der Schwangerschaft pro Tag <br>von der Mutter gerauchter Zigaretten" 
+  )
+  
+  Label(d.set) <- "Der Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;enthält Daten zu einer Raucher-Studie, die in 
+        den Vereinigten Staaten durchgeführt wurde. In dieser Studie interessierte man unter anderem 
+        sich dafür, welchen Einfluss die Anzahl pro Tag gerauchter Zigaretten von Schwangeren auf das 
+        Geburtsgewicht der Kinder hatten."
+
+  return(d.set)
+  
+  
+}
+
+
+
+
+haushaltschaden <- function(n, mu_small=1000, sd_small=500, 
+                            scale=2500, shape=2.5){
+  # example:
+  
+  # haushaltschaden(n=1000, shape=2)
+  
+  rpareto <- function (n, scale = 1, shape) 
+  {
+    ans <- scale/runif(n)^(1/shape)
+    ans[scale <= 0] <- NaN
+    ans[shape <= 0] <- NaN
+    ans
+  }
+  
+  small_damages <- abs(rnorm(n, mean = mu_small, sd = sigma_small))
+  large_damages <- rpareto(n, scale = scale, shape = shape)
+  
+  # Kombinierte Verteilung (80% kleine, 20% große Schäden)
+  weights <- sample(c(TRUE, FALSE), size = n, replace = TRUE, prob = c(0.8, 0.2))
+  damages <- ifelse(weights, 
+                    sample(small_damages, size = n, replace = TRUE), 
+                    sample(large_damages, size = n, replace = TRUE))
+  
+  Label(damages) <- "Versicherungen verzeichnen häufig eine hohe Frequenz 
+               kleiner Schäden und eine seltene, aber hohe Schadenslast durch 
+               Extremereignisse. Hausratversicherungen in der Schweiz decken 
+               übliche Gefahren wie Diebstahl, Feuer und Wasser ab, wobei 
+               kleine Schäden oft einfach reguliert werden, während grosse
+               Schäden besondere Versicherungsfälle sind."
+  
+  return(round(damages, 0))
+  
+  
+}
+
+
+
+autismus <- function(noise=FALSE){
+  
+  # Erstellen der Kontingenztabelle
+  dat <- matrix(
+    c(241, 198, 164, 215,   # Row: Autism Yes
+       20,  25,  27,  44    # Row: Autism No
+    ), # Totals
+    nrow = 2, byrow = TRUE, 
+    dimnames=list( 
+      Autismus  = c("Ja", "Nein"),
+      Stillzeit = c("0 Monate", "<2 Monate", "2-6 Monate", 
+                    ">6 Monate")))
+  
+  if(noise)
+    dat <- round(jitter(dat, amount = 4))
+  
+  Label(dat) <- "Gibt es einen Zusammenhang zwischen Autismus und Stillen? Um dies 
+      festzustellen, wurden Mütter von autistischen und nicht-autistischen 
+      Kindern befragt, ob und wenn ja bis zu welchem Zeitpunkt sie ihre Kinder gestillt haben. 
+      Die Daten sind in folgender Tabelle dargestellt. Bieten die Daten 
+      genügend Hinweise darauf, dass Stillen und Autismus unabhängig 
+      voneinander sind?"
+  
+  return(dat)
+
+}
+
+
+
+knochendichte <- function() {
+  
+  d.set <- EmulData:::.PackageData("knochendichte.xlsx")
+  
+  Labels(d.set) <- c("Knochendichte [g/cm<sup>3</sup>]",
+                     "Vitamin Dosis Gruppe"
+                    )
+
+  Label(d.set) <- "
+      Vitamin C trägt zu einer normalen Kollagenbildung für eine normale Funktion der 
+      Blutgefässe bei.
+      Bei Insassen in Pflegeheimen ist die Versorgung besonders wichtig für den 
+      Knochenaufbau. In einer Studie wurde eine Gruppe von
+      Insassen zufällig je einer von drei Behandlungen zugeteilt, die über 6&nbsp;Wochen unterschiedliche 
+      Dosen Vitamin C erhielten. Die Knochendichte in [g/cm<sup>3</sup>] wurde dann abschliessend bestimmt.
+      Ein hoher Wert gilt als erstrebenswert."
+
+  return(d.set)
+  
+  
+}
+
+
+krankenversicherer <- function(){
+
+  d.set <- EmulData:::.PackageData("krankenversicherer.xlsx")
+  
+  Labels(d.set) <- c("Name der Versicherers",      # Versicherer
+                     "CH Marktanteil in [Prozent]",      # Marktanteil
+                     "Grössenklasse",              # Typ
+                     "Anzahl Versicherte",         # Versicherte
+                     "Anzahl versicherte Kinder",  # Kinder
+                     "Anzahl versicherte Junge Erwachsene",# Junge Erwachsene 
+                     "Anzahl versicherte Erwachsene",# Erwachsene 
+                     "Mittlere Zahlungsdauer [in Tagen]" # ZahlDauer
+                      )
+
+  Label(d.set) <- "
+              Für die Kunden der Krankenkassen kann es ein wichtiges 
+              Merkmal sein, wie schnell dass eingereichte Rechnungen vergütet 
+              werden. Für das Jahr 2014 veröffentlichte das Bundesamt für Gesundheit 
+              eine entsprechende Studie, bei der pro Versicherer die mittlere Anzahl 
+              Tage ausgewiesen wurde, die zwischen dem Einreichen der Rechnung und 
+              der Auszahlung lag. Vermutet wird, dass die Auszahlungsgeschwindigkeit von
+              der Grösse des Versicherers abhängen könnte.<br>
+              "
+  
+  
+  return(d.set)
+
+}
+
+
+
+kunden <- function(){
+
+  d.set <- EmulData:::.PackageData("kunden.xlsx")
+  
+  Labels(d.set) <- c("Identifikationsnummer",     
+                     "Alter der Person in [Jahren]",
+                     "Geschlecht der Person",
+                     "Wohnregion",        
+                     "Weiterempfehlungsbereitschaft"
+  )
+  
+  Label(d.set) <- '
+        Für ein Möbelgeschäft wurde von einem Institut eine Kundenumfrage durchgeführt. Dabei wurden 
+        in einer Stichprobe die Variablen <em>alter, geschlecht, wohnregion</em> erfragt. 
+        Danach wurde die Frage:<br><br>
+        <em>"Wie wahrscheinlich auf einer Skala von 1 (unwahrscheinlich) - 10 (sicher) 
+        ist es, dass Sie uns weiterempfehlen werden?"</em><br><br>
+        gestellt. <br>Bewertungen zwischen 1 und 6 werden als <em>"detraktor"</em>, 7 und 8 
+        als <em>"passiv"</em> und 9-10 als <em>"promotor"</em> interpretiert.'
+
+  return(d.set)
+}
+
+
+
+bip <- function(n = 20){
+  
+  d.set <- EmulData:::.PackageData("bip.xlsx")[1:n, ]
+  
+  Labels(d.set) <- c("Land",     
+                     "Bruttoinlandprodukt 2023"
+                    )
+  
+  Label(d.set) <- gettextf('
+        Das Bruttoinlandprodukt (BIP) misst den Gesamtwert aller 
+        Waren und Dienstleistungen, die in einem Land in einem bestimmten 
+        Zeitraum produziert werden. Der vorliegende Datensatz umfasst das BIP für die
+        %s grössten Volkswirtschaften weltweit im Jahr 2023 (in Milliarden US-Dollar).',
+        n)
+  
+  return(d.set)
+  
+}
+
+
+
+
+operation <- function(){
+  
+  d.set <- EmulData:::.PackageData("operation.xlsx")
+  
+  Labels(d.set) <- c("Verspätung vor dem Memo",     
+                     "Verspätung nach Versenden des Memo"
+                     )
+  
+  Label(d.set) <- "Der administrativen Leitung eines Spitals war aufgefallen, dass die erste nicht 
+      notfallmässige Operation, die täglich angesetzt war, häufig mit Verspätung begann. 
+      Wenn sich indes der erste geplante Eingriff verzögerte, verzögerten sich auch 
+      alle anderen für diesen Tag geplanten Eingriffe. Über &n& Tage wurde in der Folge
+      aufgezeichnet, wie viele Minuten nach der geplanten Zeit die erste
+      Operation an jedem Tag begann. 
+      <br>Danach wurde ein Memo an das gesamte chirurgische Personal des 
+      Krankenhauses versandt, in dem alle Beteiligte aufgefordert wurden, 
+      die Verzögerung des Beginns der ersten nicht dringenden Operation 
+      pro Tag zu verringern. Eine Woche nach dem Versand des Memos wurde wiederum an &n& Tagen
+      geprüft, wie viele Minuten Verzögerung die erste geplante Operation 
+      aufwies."
+
+  return(d.set)
+  
+}
+
+
+
+vocabular <- function(){
+  
+  d.set <- EmulData:::.PackageData("vocabular.xlsx")
+  
+  Labels(d.set) <- c("Jahr der Prüfung",     
+                     "Geschlecht des Prüflings",
+                     "Anzahl Schul-/Ausbildungsjahre", 
+                     "Ergebnis im Wörtertest"
+                     )
+
+  Label(d.set) <- "Der Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;
+                  enthält die Ergebnisse eines Wörter-Tests aus zwei verschiedenen Jahren.
+                  Die Lehrer fragen sich, ob es Faktoren bei den Prüflingen gibt, die die 
+                  Ergebnisse erklären können. Sie vermuten (oder hoffen zumindest), dass 
+                  die Ausbildungszeit einen (positiven) Einfluss hat. In der Frage, ob das 
+                  Geschlecht relevant ist, sind sie sich uneins.
+                  Zudem wurden in den beiden betrachteten Jahren unterschiedliche 
+                  didaktische Konzepte verfolgt, sodass auch dies einen Einfluss auf 
+                  die Prüfungsergebnisse gehabt haben könnte."
+
+  return(d.set)
+  
+}
+
+
+
+
+
+
+# Tennisschläger
+"Einer Gruppe von 20 Tennisspielern mittleren Niveaus werden je zwei Tennisschläger zum Testen ausgehändigt. 
+Einer der Schläger ist jeweils mit einer Nylon-Saite
+bespannt, der andere mit einer synthetischen Darm-Saite. Nach einigen Wochen Testzeit
+wird jeder Spieler gefragt, ob er Nylon- oder Darm-Saiten bevorzugt. Es sei p der Anteil aller 
+Tennisspieler mittleren Niveaus, die Darm-Saiten bevorzugen und X sei die
+Anzahl der Spieler unter den 20 Testspielern, die Darm-Saiten bevorzugen. Da Darm-Saiten teurer 
+sind als Nylon-Saiten, betrachten wir die Nullhypothese, dass höchstens
+die Hälfte der Spieler Darm-Saiten bevorzugt. Wir vereinfachen dies zu H0 : p = 0.5 und
+werden H0 nur ablehnen, falls der Versuchsausgang eindeutig Darm-Saiten bevorzugt."
+
+
+
+"Die Post hat festgestellt, dass normalerweise 5% aller Sendungen auf
+dem Postweg verloren gehen. Der Online-Shop Azamon.com möchte diese Information
+benutzen, um betrügerische Kunden zu erkennen.
+a) Welche Verteilung können wir benutzen, um die Anzahl X der verlorenen Pakete
+fur einen Kunde, der n Bestellungen gemacht hat, zu modellieren?
+  b) Shopper99 hat 15 Bestellungen gemacht und zwei von ihnen als 
+  'auf dem Postweg verloren gegangen' angezeigt. Azamon.com möchte testen, ob dieser Kunde
+betrügerisch ist."
+
+
+"Unterhalb einer Kläranlage wurden 16 unabhängige Wasserproben aus einem
+Fluss entnommen und jeweils deren Ammoniumkonzentration Xi (angegeben in
+µgNH4-N/`) mit einem Messgerät bestimmt. Der Mittelwert der Proben ergab
+x = 204.2.
+Wir wollen nun wissen, ob mit diesem Experiment eine Überschreitung des
+Grenzwerts von 200 µgNH4-N/` nachgewiesen werden kann (auf dem 5%-Niveau).
+a) (2 Punkte) Nimm an, die Standardabweichung der Messungen sei im Voraus aufgrund 
+früherer Studien bekannt. Sie betrage 10 µgNH4-N/`. 
+Finde einen geeigneten statistischen Test, um zu überprüfen, ob eine Grenzwertüberschreitung 
+nachgewiesen werden kann. Wie lauten die Modellannahmen?"
 
 
 

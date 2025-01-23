@@ -1,5 +1,10 @@
-exportPattern("schnee", "alzheimer", "miete",
-              "RndPairs", "RndWord")
+
+exportPattern("schnee", "alzheimer", "miete", "gams", "dose", "aeschen",
+              "RndPairs", "RndWord", "schulnote", "retouren", "kredit", "birthweight",
+              "haushaltschaden", "knochendichte","krankenversicherer","kunden","bip",
+              "autismus","operation","vocabular",
+              
+              "LibBinomial")
 
 
 importFrom("stats", "quantile", "relevel", "rnorm", "rpois", "na.omit")
