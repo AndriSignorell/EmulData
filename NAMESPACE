@@ -2,7 +2,9 @@
 exportPattern("schnee", "alzheimer", "miete", "gams", "dose", "aeschen",
               "RndPairs", "RndWord", "schulnote", "retouren", "kredit", "birthweight",
               "haushaltschaden", "knochendichte","krankenversicherer","kunden","bip",
-              "autismus","operation","vocabular",
+              "autismus","operation","vocabular","einkauf","socialmedia","tierklinik",
+              "choco", "smoke", "eier","hotdog","vegi","lohn","fitness","kalorien",
+              "bankhr","detailhändler","comcorp","skigebiet",
               
               "LibBinomial")
 

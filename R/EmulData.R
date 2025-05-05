@@ -99,6 +99,29 @@ miete <- function() {
 
 
 
+# Kalorien *******************************************
+
+kalorien <- function() {
+  
+  # kalorien()
+  
+  d.set <- .PackageData("kalorien.xlsx")
+  
+  Labels(d.set) <- c("Studien Gruppe", "Anzahl aufgenommene Kalorien")
+  
+  Label(d.set) <-  "In einer Studie soll untersucht werden, ob Personen mit fleischloser Ernährung 
+                    am Tag weniger Kalorien zu sich nehmen als Personen, die Fleisch konsumieren. 
+                    Dabei wird angenommen, dass die tägliche Kalorienmenge normalverteilt ist und dass 
+                    die Varianz bei beiden Gruppen übereinstimmt."
+
+  return(d.set)
+  
+}
+
+
+
+
+
 # Schokolade **********************************************************
 
 choco <- function(n=300) {
@@ -387,7 +410,7 @@ aeschen <- function(mu =c(1, 0.8), s=c(0.19, 0.22)){
                    glevels=c("2023","2024"),
                    DIST=c(function(n) round(rnorm(n, mean=mu[1], sd=s[1]), 3),
                           function(n) round(rnorm(n, mean=mu[2], sd=s[2]), 3)))[, c(2,1)]
-
+  d.set$jahr <- N(d.set$jahr)
 
   Label(d.set) <- "Fischer im Bodensee äusserten den Verdacht, dass das Gewicht der Aeschen 
       im 2024 deutlich kleiner sei, als im vorherigen Jahr (2023). Dieses war speziell
@@ -508,6 +531,41 @@ schulnote <- function(){
     
     return(d.dat)
 
+}
+
+
+
+einkauf <- function(n = 427){
+  
+  d.dat <- within(
+    data.frame(
+      filiale  = factor(sample(c("Ost", "Nordwest", "Süd"), 
+                               size = n, replace = TRUE)), 
+      wagen    = factor(sample(c("L", "XL"), 
+                               size = n, replace = TRUE))
+    ),
+      
+    einkauf <- 
+      DescTools::RoundTo((rpois(n, 
+                    lambda = c(7, 9, 14)[DescTools::N(filiale)]*4 + 
+                      c(10, 15)[DescTools::N(wagen)]) + runif(n)), 0.05)
+  )
+  
+  Labels(d.dat) <- c("Filiale",
+                     "Einkaufswagengrösse",
+                     "Einkaufsbetrag [in CHF]")
+  
+  Label(d.dat) <- gettextf("
+  Ein Detailhändler möchte untersuchen, ob unterschiedliche Grössen der Einkaufswagen
+  die Höhe des Einkaufsbetrags beeinflussen. Einer Hypothese nach könnten grosse 
+  Einkaufswagen die Kunden animieren, mehr einzukaufen.<br>
+  Für die Prüfung der Hypothese wurden Daten von %s Einkäufen in drei Filialen <em>Ost</em>, 
+  <em>Nordwest</em>
+  und <em>Süd</em> jeweils während 6 Wochen mit normalen Einkaufswagen (<em>L</em>) erfasst, und 6 Wochen mit 
+  grossen Einkaufswagen (<em>XL</em>).<br>", n)
+
+  return(d.dat)
+  
 }
 
 
@@ -638,7 +696,7 @@ haushaltschaden <- function(n, mu_small=1000, sd_small=500,
   small_damages <- abs(rnorm(n, mean = mu_small, sd = sigma_small))
   large_damages <- rpareto(n, scale = scale, shape = shape)
   
-  # Kombinierte Verteilung (80% kleine, 20% große Schäden)
+  # Kombinierte Verteilung (80% kleine, 20% grosse Schäden)
   weights <- sample(c(TRUE, FALSE), size = n, replace = TRUE, prob = c(0.8, 0.2))
   damages <- ifelse(weights, 
                     sample(small_damages, size = n, replace = TRUE), 
@@ -737,6 +795,89 @@ krankenversicherer <- function(){
   
   return(d.set)
 
+}
+
+
+bankhr <- function(){
+  
+  d.set <- EmulData:::.PackageData("bankhr.xlsx")
+  
+  Labels(d.set) <- c("Name der Bank", 
+                     "Anzahl Angestellte",
+                     "Mittlere Reaktionsdauer [in Tagen]"
+  )
+  
+  Label(d.set) <- "
+              Um die Personalabteilungen von Banken zu vergleichen, wurde in einer 
+              experimentellen Studie &n& Banken jeweils 4 Bewerbungen zugestellt und 
+              die mittlere Anzahl Tage festgehalten, die zwischen dem Einreichen 
+              der Bewerbung und der Reaktion lag. Vermutet wird, dass die 
+              Reaktionsgeschwindigkeit von
+              der Grösse der Bank (Anzahl Angestellten) abhängen könnte.<br>
+              "
+  
+  return(d.set)
+  
+}
+
+
+detailhändler <- function(){
+  
+  d.set <- EmulData:::.PackageData("detailhändler.xlsx")
+  
+  Labels(d.set) <- c("Identifikationsnummer des Unternehmens", 
+                     "Name des Unternehmens",
+                     "geschätzter Jahresumsatz in [Mio CHF]"
+  )
+  
+  Label(d.set) <- "
+              Die Liste enthält den Jahresumsatz von &n& auf dem Schweizer Markt 
+              aktiven Unternehmen aus dem Detailhandel.<br>
+              "
+  
+  return(d.set)
+  
+}
+
+
+comcorp <- function(){
+  
+  d.set <- EmulData:::.PackageData("comcorp.xlsx")
+  
+  Labels(d.set) <- c("Identifikationsnummer des Unternehmens", 
+                     "Name des Unternehmens",
+                     "geschätzter Jahresumsatz in [Mio CHF]",
+                     "geschätzter Anzahl Kunden"
+  )
+  
+  Label(d.set) <- "
+              Die Liste enthält den Jahresumsatz von &n& auf dem Schweizer Markt 
+              aktiven Unternehmen aus dem Detailhandel.<br>
+              "
+  
+  return(d.set)
+  
+}
+
+
+skigebiet <- function(){
+  
+  d.set <- EmulData:::.PackageData("skigebiet.xlsx")
+  
+  Labels(d.set) <- c("Name des Skigebiets",
+                     "Pistenkilometer in [km]",
+                     "geschätzter Anzahl Besucher pro Jahr",
+                     "geschätzter Jahresumsatz in [Mio CHF]"
+  )
+  
+  Label(d.set) <- "
+              Die Liste enthält den die Anzahl Pistenkilometer, die Anzahl 
+              Besucher und den geschätzten Jahresumsatz von &n& Schweizer
+              Skigebiete.<br>
+              "
+  
+  return(d.set)
+  
 }
 
 
@@ -840,20 +981,77 @@ vocabular <- function(){
 }
 
 
+fitness <- function(n){
+
+  d.set <- within(
+    data.frame(
+      geschlecht  = factor(sample(c("m", "w"), 
+                                  size = n, replace = TRUE)), 
+      alter     = round(runif(n, min = 18, max = 40), 0),  
+      training  = factor(sample(c("HYP", "INT","FUN"), 
+                                     size = n, replace = TRUE)) 
+    ),
+    zuwachs <- 
+        round(( - 0.05 * alter  - 4 * (geschlecht=="w") + 
+                30 * N(training)/3 + rnorm(n, mean = 0, sd = 5)), 
+              0)
+  )
+  d.set$kgewicht <- rnorm(nrow(d.set), mean = 70, sd=6.2)
+  d.set$kgewicht[d.set$geschlecht == "w"] <- rnorm(length(d.set$kgewicht[d.set$geschlecht == "w"]), 
+                                                  mean=65, sd=4.2)
+  d.set$kgewicht <- round(d.set$kgewicht, 1)
+    
+  Labels(d.set) <- c("Geschlecht",     
+                     "Alter",
+                     "Trainingtyp", 
+                     "Leistungszuwachs [in kg]",
+                     "Körpergewicht [in kg]"
+  )
+  
+  Label(d.set) <- 'In einem achtwöchigen Experiment soll untersucht werden, 
+                  welche von drei Trainingsmethoden den grössten Leistungszuwachs 
+                  im Fitnessstudio bewirkt. Dazu nehmen &n& gesunde, untrainierte 
+                  Erwachsene im Alter von 18 bis 40 Jahren teil, die per Zufall auf 
+                  drei Gruppen aufgeteilt werden. Die erste Gruppe 
+                  absolviert klassisches "Hypertrophietraining" (<em>HYP</em>). 
+                  Die zweite Gruppe trainiert nach dem "High-Intensity-Training-Prinzip" 
+                  (<em>INT</em>) mit einem Satz bis zur Muskelerschöpfung. 
+                  Die dritte Gruppe führt "Functional Training" mit instabilen 
+                  Übungen wie TRX oder Bosu Ball durch (<em>FUN</em>). Alle Teilnehmenden 
+                  trainieren dreimal pro Woche unter Aufsicht von Fitnesstrainern, 
+                  um eine korrekte Übungsausführung sicherzustellen. Der 
+                  Leistungszuwachs wird primär anhand der Maximalkraft 
+                  (Mittelwert aus Bankdrücken und Beinpresse) gemessen. 
+                  Der Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;
+                  enthält die Ergebnisse.'
+  
+  # Sekundäre Endpunkte sind Veränderungen im Muskelumfang 
+  # (Oberarm/Oberschenkel).
+  
+  return(d.set)
+  
+}
+
+
 
 
 
 
 # Tennisschläger
-"Einer Gruppe von 20 Tennisspielern mittleren Niveaus werden je zwei Tennisschläger zum Testen ausgehändigt. 
+"Einer Gruppe von 20 Tennisspielern mittleren Niveaus werden je zwei Tennisschläger 
+zum Testen ausgehändigt. 
 Einer der Schläger ist jeweils mit einer Nylon-Saite
 bespannt, der andere mit einer synthetischen Darm-Saite. Nach einigen Wochen Testzeit
 wird jeder Spieler gefragt, ob er Nylon- oder Darm-Saiten bevorzugt. Es sei p der Anteil aller 
 Tennisspieler mittleren Niveaus, die Darm-Saiten bevorzugen und X sei die
-Anzahl der Spieler unter den 20 Testspielern, die Darm-Saiten bevorzugen. Da Darm-Saiten teurer 
+Anzahl der Spieler unter den 20 Testspielern, die Darm-Saiten bevorzugen. 
+Da Darm-Saiten teurer 
 sind als Nylon-Saiten, betrachten wir die Nullhypothese, dass höchstens
-die Hälfte der Spieler Darm-Saiten bevorzugt. Wir vereinfachen dies zu H0 : p = 0.5 und
-werden H0 nur ablehnen, falls der Versuchsausgang eindeutig Darm-Saiten bevorzugt."
+die Hälfte der Spieler Darm-Saiten bevorzugt. 
+Wir vereinfachen dies zu H0 : p = 0.5 und
+werden H0 nur ablehnen, falls der Versuchsausgang eindeutig Darm-Saiten bevorzugt.
+
+Marktabschätzung, mindestens 30% Kunden für eine Markteinführung von neuen Saiten."
 
 
 
