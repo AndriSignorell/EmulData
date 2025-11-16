@@ -4,7 +4,9 @@ exportPattern("schnee", "alzheimer", "miete", "gams", "dose", "aeschen",
               "haushaltschaden", "knochendichte","krankenversicherer","kunden","bip",
               "autismus","operation","vocabular","einkauf","socialmedia","tierklinik",
               "choco", "smoke", "eier","hotdog","vegi","lohn","fitness","kalorien",
-              "bankhr","detailhändler","comcorp","skigebiet",
+              "bankhr","detailhändler","comcorp","skigebiet","sports","alpvieh",
+              "akku","sonnenblumen","verzögerung","bike","arbeitsweg","reisekunden",
+              "kreisel","rinder",
               
               "LibBinomial")
 

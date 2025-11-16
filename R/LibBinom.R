@@ -43,9 +43,9 @@ LibBinomial <- list(
         <br>
                Berechnen Sie die Wahrscheinlichkeit, dass davon ... <br><br>
               ",
-    prob_txt="Krebse fortpflanzungsfähig sind.",
+    prob_txt="Krebse nicht fortpflanzungsfähig sind.",
     quant_txt = "", 
-    prob = c(0.8, 0.9),  # probability from ... to
+    prob = c(0.1, 0.2),  # probability from ... to
     n = c(12, 15)
     
   ), 
@@ -63,6 +63,22 @@ LibBinomial <- list(
     quant_txt = "", 
     prob = c(0.85, 0.95),  # probability from ... to
     n = c(12, 15)
+    
+  ), 
+  
+  corner = list(
+    PRE_TXT =  "
+      Eine Fussballmannschaft schätzt, dass sie bei p&nbsp;=&nbsp;&p& der 
+      Eckbälle ein Tor erzielt. In den verbleibenden 7 Spielen der Meisterschaft hofft 
+      die Mannschaft insgesamt n&nbsp;=&nbsp;&n&&nbsp; Eckbälle zu treten. 
+      <br><br>
+      Wie gross ist die Wahrscheinlichkeit, dass die Mannschaft bei den 
+      getretenen Eckbällen ... <br><br>
+      ",
+    prob_txt="Tore erzielt.",
+    quant_txt = "", 
+    prob = c(0.03, 0.07),  # probability from ... to
+    n = c(12, 15)*7
     
   )
 

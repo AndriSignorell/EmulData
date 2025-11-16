@@ -1,5 +1,10 @@
 
 
+# ToDo:
+#   
+# rinder 
+# cheese
+# oeko
 
 
 # Schneehöhe ****************************************
@@ -68,6 +73,47 @@ alzheimer <- function(n=554) {
   return(d.set)
   
 }
+
+
+
+
+rinder <- function(n=554) {
+  
+  # Schlachtalter:  18-24 Monate
+  # Schlachtgewicht: 334 kg
+  
+  d.set <- .PackageData("rinder.xlsx")
+  
+  d.set$alter <- round(rnorm(nrow(d.set), mean = 21, sd=2), 0)
+  d.set$gewicht <- round(c(0,-23,-30)[Nf(d.set$rasse)] + 
+                           + 0.4* d.set$alter + 
+                           + c(0,+30,+15)[Nf(d.set$futter)] + 
+                           + c(0,-23)[Nf(d.set$sömmerung)] + 
+                           + 290 + rnorm(nrow(d.set), 0, 5), 0)
+  d.set$rasse <- factor(d.set$rasse)
+  d.set$futter <- factor(d.set$futter)
+  d.set$sömmerung <- factor(d.set$sömmerung)
+  
+  Labels(d.set) <- c("Schlachtgewicht des Rinds in [kg]", "Alter des Rinds [in Monaten]", 
+                     "Rasse des Rinds", "Futtertyp", "Lage der Sömmerung")
+
+  Label(d.set) <- "
+          Für die Fleischproduktion werden typischerweise diverse Rinderrassen verwendet, 
+          die mit 
+          verschiedenenartigem Futter ernährt werden. Sowohl die Rasse, das 
+          Futter, die Art der
+          Sömmerung (wo sich die Tiere im Sommer aufhalten) aber auch 
+          das Alter der Rinder haben einen Einfluss auf das Schlachtgewicht.  
+          Der Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;enthält 
+          Daten, die bei einem
+          Fleischproduzenten in einem Produktionszyklus erfasst wurden."
+                           
+  return(d.set)
+                           
+          
+}
+
+
 
 
 
@@ -418,8 +464,7 @@ aeschen <- function(mu =c(1, 0.8), s=c(0.19, 0.22)){
       dem in wärmerem Wasser verringerten Sauerstoffgehalt gelitten hätten und allenfalls vorzeitig 
       eingegangen sein könnten.<br>
       Der Datensatz&nbsp;&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;&nbsp;enthält
-      für je eine Stichprobe aus dem Jahr 2023 und eine aus dem Jahr 2024
-      das Gewicht der Fische."
+      das Gewicht der Fische für je eine Stichprobe aus den Jahren 2023 und 2024."
 
   return(d.set)
   
@@ -671,6 +716,33 @@ birthweight <- function() {
         sich dafür, welchen Einfluss die Anzahl pro Tag gerauchter Zigaretten von Schwangeren auf das 
         Geburtsgewicht der Kinder hatten."
 
+  return(d.set)
+  
+  
+}
+
+
+
+
+sports <- function() {
+  
+  d.set <- .PackageData("sports.xlsx")
+  
+  Labels(d.set) <- c(
+    "Anzahl Schuljahre",
+    "Wohnhaft in einer Stadt (1=ja, 0=nein)",
+    "Alter der Person",
+    "Anzahl Sport-Einheiten pro Woche"
+  )
+  
+
+  Label(d.set) <- "
+    In einer Studie zum Thema 'Sport und Gesundheit' interessierte man 
+    sich dafür, welche persönlichen Eigenschaften die Anzahl absolvierter 
+    Sporteinheiten beeinflussen.<br>
+    Der Datensatz &nbsp;&nbsp;<strong>&link&</strong>&nbsp; 
+    enthält die Angaben."
+  
   return(d.set)
   
   
@@ -981,6 +1053,8 @@ vocabular <- function(){
 }
 
 
+
+
 fitness <- function(n){
 
   d.set <- within(
@@ -1020,7 +1094,7 @@ fitness <- function(n){
                   Übungen wie TRX oder Bosu Ball durch (<em>FUN</em>). Alle Teilnehmenden 
                   trainieren dreimal pro Woche unter Aufsicht von Fitnesstrainern, 
                   um eine korrekte Übungsausführung sicherzustellen. Der 
-                  Leistungszuwachs wird primär anhand der Maximalkraft 
+                  Leistungszuwachs (<em>zuwachs</em>) wird primär anhand der Maximalkraft 
                   (Mittelwert aus Bankdrücken und Beinpresse) gemessen. 
                   Der Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;
                   enthält die Ergebnisse.'
@@ -1031,6 +1105,306 @@ fitness <- function(n){
   return(d.set)
   
 }
+
+
+alpvieh <- function(n=100){
+  
+  set.seed(42)
+  
+  # n <- 100
+  fuetterung <- factor(sample(c("keine", "heu", "kraftfutter"), n, replace = TRUE),
+                       levels=c("keine", "heu", "kraftfutter"))
+  alp <- rbinom(n, 1, 0.6)
+  startgewicht <- round(rnorm(n, mean = 125, sd = 6), 1)
+  alter <- round(rnorm(n, mean = 6, sd = 0.5), 1)
+  geschlecht <- factor(c("m","w")[rbinom(n, 1, 0.5)+1], levels=c("m","w"))
+
+  # Regressionsstruktur (wahre Effekte)
+  beta0 <- 50
+  beta_fuet <- c(keine = 0, Heu = 10, Kraftfutter = 25)
+  beta_alp <- 5
+  beta_start <- 0.6
+  beta_alter <- 2
+  
+  schlachtgewicht <- round(
+      beta0 +
+      beta_fuet[fuetterung] +
+      beta_alp * alp +
+      beta_start * startgewicht +
+      beta_alter * alter +
+      rnorm(n, 0, 5), 
+    1)
+  
+  d.set <- data.frame(schlachtgewicht, fuetterung, alp, startgewicht, alter, geschlecht)
+  
+  Labels(d.set) <- c("Schlachtgewicht in [kg]",
+                     "die Fütterungsart während der Sömmerung",
+                     "1 wenn das Kalb auf einer Alp gesömmert wurde",
+                     "das Startgewicht zu Beginn der Sömmerung in [kg]",
+                     "das Alter bei Beginn der Sömmerung (Monate)",
+                     "das Geschlecht des Kalbes")
+  
+  Label(d.set) <- as.html("In einer Untersuchung sollte analysiert werden, welche Einflussgrössen 
+  das Schlachtgewicht (Zielvariable) in [kg] von Kälbern nach der Sömmerung bestimmen. 
+  Die Fütterungsart beschreibt, ob und in welchem Umfang während der Sömmerung 
+  zugefüttert wurde. Es wird angenommen, dass zusätzliche Fütterung – insbesondere 
+  mit Kraftfutter – zu einem höheren Schlachtgewicht führen könnte. Auch ein 
+  Alpaufenthalt könnte sich positiv auswirken, da Kälber dort oft bessere 
+  Weidebedingungen vorfinden. Startgewicht und Alter dienen als kontinuierliche Grössen, 
+  die das Wachstumspotenzial der Tiere abbilden sollen.<br>
+  Folgende potenzielle erklärende Variablen liegen vor 
+  (Datensatz&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;):
+  <br><br> &vartab&<br><br>                          ")
+
+  return(d.set)
+}
+
+
+
+
+akku <- function(){
+  
+  d.set <- EmulData:::.PackageData("akku.xlsx")
+  
+  Labels(d.set) <- c("Typ des Akkus",     
+                     "Anzahl Ladezyklen bis zum Ersatz" 
+  )
+  
+  Label(d.set) <- "
+    Ein Batterie-Hersteller bietet 2 Typen von Akkus A und B an und 
+    verspricht in der Werbung, dass beide Akkutypen gleich viele Ladezyklen
+    vertragen, bevor sie ersetzt werden müssen.
+    Eine Konsumentenorganisation will das überprüfen und bildet eine Stichprobe
+    mit Typ-A und Typ-B Akkus. Die Akkus werden soviele Male geladen, bis
+    die Kapazität nicht mehr über einen vorher bestimmten Schwellwert kommt.<br>
+    Die Daten finden sich in &nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;."
+  
+  return(d.set)
+  
+}
+
+
+
+sonnenblumen <- function(n=60) {
+  
+  dünger <- rep(c("A", "B"), each = n/2)
+  sorte <- rep(c("Classic", "Giant", "Mini"), length.out = n)
+  sonne <- sample(c("hoch", "mittel", "gering"), size = n, replace = TRUE)
+  
+  # Baseline für Sorten (in cm)
+  sorten_effekt <- c(Classic = 150, Giant = 180, Mini = 120)
+  
+  # Sonneneinstrahlungseffekt
+  sonnen_effekt <- c(hoch = 20, mittel = 10, gering = 0)
+  
+  # Generierung der Pflanzenhöhe
+  höhe <- sorten_effekt[sorte] +
+    sonnen_effekt[sonne] +
+    ifelse(dünger == "A", 5, 0) +     # Dünger A leicht besser
+    rnorm(n, mean = 0, sd = 8)        # zufällige Streuung
+  
+  # Zusammenführen
+  daten <- data.frame(dünger, sorte, sonne, höhe)
+  
+  Labels(daten) <- c("Düngertyp", 
+                     "Sonnenblumensorte",
+                     "Intensität der Sonneneinstrahlung",
+                     "gemessene Pflanzenhöhe nach definierter Wachstumsperiode")
+
+  Label(daten) <- "Führt die Verwendung von Dünger A im Vergleich zu Dünger B 
+    zu einem höheren Wachstum (Pflanzenhöhe) bei Sonnenblumen, unter 
+    Berücksichtigung verschiedener Sorten und unterschiedlicher 
+    Sonneneinstrahlung?<br>
+    Die Daten finden sich in &nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;."
+  
+  return(daten)
+  
+}
+
+
+
+verzögerung <- function(){
+  
+  d.set <- EmulData:::.PackageData("verzögerung.xlsx")
+  
+  Labels(d.set) <- c("Messung vor dem Memo",     
+                     "Messung nach dem Memo" 
+                     )
+  
+  Label(d.set) <- '
+      In einem Speditionsbetrieb fiel dem Disponenten auf, dass die erste
+      Lieferung häufig mit Verspätung erfolgte.
+      Wenn sich die erste Lieferung verzögerte, verzögerten sich auch
+      alle anderen für diesen Tag geplanten Lieferungen. Über 15 Tage wurde in der Folge
+      aufgezeichnet, wie viele Minuten nach der geplanten Zeit die erste
+      Lieferung an jedem Tag vom Lager abging.
+      <br>
+      Danach wurde ein Memo an das gesamte Logistik-Personal versandt,
+      in dem alle Beteiligte aufgefordert wurden,
+      die Verzögerung der Erstlieferung pro Tag zu verringern. Eine Woche nach dem Versand des Memos wurde
+      erneut geprüft, wie viele Minuten Verzögerung die Erstlieferung
+      aufwies.
+  
+      Die Daten finden sich in der Tabelle&nbsp;&nbsp;<strong>&link&</strong>&nbsp;&nbsp;. Eine negative Zahl
+      in der Tabelle bedeutet dass die Lieferng früher als geplant vom Lager abging.
+      Es interessiert nun, ob das Memo zu geringeren Verspätungen geführt hat.'
+
+}
+
+
+
+
+bike <- function(){
+  
+  d.set <- EmulData:::.PackageData("bike.xlsx")
+  
+  Labels(d.set) <- c("Datum","Wochentag","Monat","Ferientag","Jahreszeit",
+                     "Wetter","Temperatur in °C","gefühlte Temperatur in °C",
+                     "Luftfeuchtigkeit in %","Windgeschwindigkeit",
+                     "Anzahl Vermietungen")
+
+  Label(d.set) <- "
+          Der Verleih von Fahrrädern hängt stark mit dem Wetter und den saisonalen Gegebenheiten zusammen. 
+          Typischerweise beeinflussen Wetterbedingungen, Niederschlag, Wochentag, 
+          Jahreszeit, Tageszeit usw. die Anzahl Vermietungen.
+          <br>Der Datensatz&nbsp;&nbsp;&link&&nbsp;&nbsp;enthält die Vermietungen eines grossen 
+          Velo-Verleihers für jeden Tag während 2er Jahre."
+ 
+  return(d.set)
+                            
+}
+
+
+
+
+arbeitsweg <- function(){
+  
+  d.set <- EmulData:::.PackageData("arbeitsweg.xlsx")
+  
+  Labels(d.set) <- c("ID der befragten Person", "Agglomeration (<em>ZH, BE, BS</em>)", 
+                     "Transportmittel", "Benötigte Zeit für den Arbeitsweg")
+  
+  Label(d.set) <- "
+          Für eine Mobilitätsuntersuchung zuhanden der Verkehrskommission sollte die Dauer
+          des Arbeitswegs für unterschiedliche Agglomerationen und Verkehrsmittel ermittelt werden.
+          "
+  
+  return(d.set)
+  
+}
+
+
+
+# ---------------------------------------------------
+# Funktion zur zufälligen Kundengenerierung
+# ---------------------------------------------------
+reisekunden <- function(n = 500) {
+    
+  # ---------------------------------------------------
+  # 🧳 Simulation eines Kundendatensatzes für ein Reisebüro
+  # ---------------------------------------------------
+  
+  set.seed(123)  # für Reproduzierbarkeit
+  
+  # Beispielhafte Zielgruppen mit Wahrscheinlichkeiten
+  zielgruppen <- c("Frauen", "Männer", "Jüngere (<30)", "Mittlere (30–50)", "Ältere (60+)")
+  p_zielgruppen <- c(0.25, 0.25, 0.20, 0.20, 0.10)
+  
+  # Basis-Tabelle mit typischen Reisedestinationen und Motivationen
+  reiseideen <- data.frame(
+    Zielgruppe = c(
+      "Frauen", "Frauen", "Männer", "Männer",
+      "Jüngere (<30)", "Mittlere (30–50)", "Ältere (60+)"
+    ),
+    Reiseziel = c(
+      "Bali", "Südfrankreich", "Graubünden", "Kanada",
+      "Ibiza", "Südafrika", "Donaukreuzfahrt"
+    ),
+    Motivation = c(
+      "Wellness & Natur", "Erholung & Kulinarik",
+      "Berge & Sport", "Abenteuer & Roadtrip",
+      "Party & Sonne", "Familienzeit & Komfort",
+      "Kultur & Erholung"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  
+  # Zufällige Zielgruppe pro Kunde
+  gruppe <- sample(zielgruppen, n, replace = TRUE, prob = p_zielgruppen)
+  
+  # Geschlecht aus Zielgruppe ableiten
+  geschlecht <- ifelse(gruppe == "Frauen", "weiblich",
+                       ifelse(gruppe == "Männer", "männlich",
+                              sample(c("weiblich", "männlich"), n, replace = TRUE)))
+  
+  # Alter je nach Gruppe simulieren
+  alter <- sapply(gruppe, function(g) {
+    if (g == "Jüngere (<30)") rnorm(1, 25, 3)
+    else if (g == "Mittlere (30–50)") rnorm(1, 40, 5)
+    else if (g == "Ältere (60+)") rnorm(1, 68, 4)
+    else rnorm(1, 45, 10)
+  })
+  
+  # Reiseziel & Motivation passend zur Zielgruppe
+  reisedaten <- sapply(gruppe, function(g) {
+    sample(reiseideen$Reiseziel[reiseideen$Zielgruppe == g], 1)
+  })
+  
+  motive <- sapply(gruppe, function(g) {
+    sample(reiseideen$Motivation[reiseideen$Zielgruppe == g], 1)
+  })
+  
+  # Zusammenführen
+  daten <- data.frame(
+    KundenID = 1:n,
+    Geschlecht = geschlecht,
+    Alter = round(alter),
+    Zielgruppe = gruppe,
+    Reiseziel = reisedaten,
+    Motivation = motive,
+    stringsAsFactors = FALSE
+  )
+  
+  
+  Label(daten) <- "Ein Reisebüro will die Unterschiede in den Reisepräferenzen 
+          nach Geschlecht und Altersgruppe abbilden, wie sie typischerweise 
+          in Marktanalysen beobachtet werden."
+  
+  Labels(daten) <- c("die ID des Kunden", "das Alter", "die Zielgruppe", "das letzte Reiseziel",
+                     "die geäusserte Motivation")
+  
+  return(daten)
+  
+}
+
+
+kreisel <- function(){
+  
+  d.set <- EmulData:::.PackageData("kreisel.xlsx")
+  
+  Labels(d.set) <- c("Staulänge ohne Verkehrsleitung", 
+                     "Staulänge mit Verkehrsleitung")
+  
+  Label(d.set) <- "
+      Am Kreisel in Fällanden staut sich der Verkehr an jedem Morgen zuverlässig. 
+      Die Gemeinde versuchte als Ansatz, die Wartezeiten für die Autofahrer 
+      durch den Einsatz von Verkehrskadetten zu verkürzen. 
+      Um den Einfluss der Verkehrsleitung zu prüfen, mass man an &nA& normalen Tagen 
+      die Länge des Staus in [m] zu jeweils 8 vorgängig zufällig bestimmten Zeitpunkten 
+      innerhalb der kritischen Zeitphase von 06:00-09:00 Uhr (A - <em>ohne</em>). 
+      Das Gleiche tat man an weiteren &nB& Tagen, an denen die Verkehrskadetten 
+      zum Einsatz kamen (B - <em>mit</em>). 
+      Die Mittelwerte des Staus pro Tag finden sich in der 
+      Datei &nbsp;<strong>&link&</strong>&nbsp;&nbsp;.
+      "
+  
+  return(d.set)
+  
+}
+
+
+
 
 
 
